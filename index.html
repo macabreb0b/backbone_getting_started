@@ -1,0 +1,116 @@
+<html>
+  <head>
+    
+    <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js'></script>
+
+  </head>
+  <body>
+    <h1>hello!</h1>
+    
+    <form class='cat-form'>
+      <input 
+        id='cat_name' 
+        type='text' 
+        name='cat[name]' 
+        placeholder='cat_name'>
+      <input 
+        id='cat_color' 
+        type='text' 
+        name='cat[color]' 
+        placeholder='cat_color'>
+      <input 
+        id='cat_type' 
+        type='text' 
+        name='cat[type]' 
+        placeholder='cat_type'>
+      
+      <input type='submit' value='make cat'>
+    </form>
+    
+    <ul class='cats'>
+      
+      
+      
+    </ul>
+    
+    
+    <script>
+    
+    $(function() {
+      // jQuery listener to create cat with form
+      $('.cat-form').on('submit', function(event) {
+        event.preventDefault();
+        var $target = $(event.target)
+        
+        var myCat = new Cat
+        myCat.set('name', $target.find('#cat_name').val())
+        myCat.set('color', $target.find('#cat_color').val())
+        myCat.set('type', $target.find('#cat_type').val())
+        
+        catCollection.add(myCat)
+      })
+    });
+    
+    // plain-old JS function to create cat view. You might have 
+    // methods like this in your router!
+    var addCatToList = function(cat) {
+      var view = new CatView({ model: cat })
+      
+      $('ul.cats').append(view.render().$el);
+    }
+       
+    Cat = Backbone.Model.extend()
+    
+    Cats = Backbone.Collection.extend({
+      model: Cat
+      // add a url property to tell the collection where to make AJAX calls
+    }) 
+    
+    // this view gets passed a cat model, and listens to custom triggers for
+    // 'pet' and 'red'. Trigger 'red' on the model to turn the text red.
+    CatView = Backbone.View.extend({
+      initialize: function() {
+        this.listenTo(this.model, 'pet', this.petCat);
+        this.listenTo(this.model, 'red', this.redCat);
+      },
+      
+      // this is a terrible name for an html tag. A good tag name would be 
+      // something like 'li', since this is being added to a list.
+      tagName: 'whatever',
+      
+      render: function() {
+        var $li = $('<li>')
+        $li.append('cat name: ' + this.model.get('name') + '<br>');
+        $li.append('cat color: ' + this.model.get('color') + '<br>');
+        $li.append('cat type: ' + this.model.get('type') + '<br>');
+        
+        this.$el.html($li);
+        return this;
+      },
+      
+      petCat: function() {
+        console.log('petting ' + this.model.get('name'))
+      },
+      
+      // set the 'style' attribute on this.$el. take a look at the html
+      // to see the changes - you should now see:
+      // <whatever style='color: red;'>...</whatever>
+      redCat: function() {
+        this.$el.attr('style', 'color:red;')
+      }
+    });
+    
+    // global cat collection
+    var catCollection = new Cats
+    
+    
+    // listen to 'add' and fire the addCatToList callback. pass
+    catCollection.on("add", addCatToList);
+
+    </script>
+  </body>
+  
+  
+</html>
